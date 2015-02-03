@@ -1,15 +1,27 @@
-// challenge 5 - Backbone's View
-var Appointment;
-Appointment = Backbone.Model.extend();
-
-var appointment;
-appointment = new Appointment({title:"Meet Josh"});
-
-var AppointmentView;
-AppointmentView = Backbone.View.extend({
-    render:function( ){
-        this.$el.html("<li>"+this.model.get("title")+"</li>");
-    }
+var domainURL = "http://localhost:1337";
+var Appointment = Backbone.Model.extend({
+  urlRoot:domainURL + "/appointments",
+  idAttribute:"identifier",
+	parse: function(response){
+	  	response = response.appointment;
+	  	response.cancelled = response.cankelled;
+	  	delete response.cankelled
+		return response;
+	},
+	toJSON: function(){
+		var attrs = _.clone(this.attributes);
+		attrs.cankelled = attrs.cancelled;
+		attrs = _.pick(attrs,'title','cankelled','identifier');
+		return {appointment:attrs};
+	}
 });
 
-var appointmentView = new AppointmentView({model:appointment});
+var data = {
+	"appointment": { 
+		"title": "Ms. Kitty Hairball Treatment", 
+		"cankelled": false, 
+		"identifier": 1 
+	}
+};
+var appointment = new Appointment(data,{parse:true});
+appointment.fetch( );
