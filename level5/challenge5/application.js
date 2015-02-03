@@ -1,16 +1,20 @@
-var AppointmentView = Backbone.View.extend({
-  template: _.template("<span><%= title %></span>"),
-  initialize: function(){
-    this.listenTo(this.model,'change:title', this.changedTitle);
-  },
+var AppointmentForm = Backbone.View.extend({
+  template: _.template('<form><input name="title" type="text" value="<%= title %>" /><input name="name" type="text" value="<%= name %>" /></form>'),
   render: function(){
     this.$el.html(this.template(this.model.attributes));
+    return this;
   },
-  changedTitle: function(model, value, options){
-    this.$('span').html(value);
-
-    if (options.highlight !== false){
-      this.$el.effect('highlight', {}, 1000); 
-    }
-  }
+  events:{
+  submit:"submit" 
+ },
+ submit:function(e){
+   e.preventDefault();
+   var newTitle = this.$('input[name=title]').val( );
+   var newName = this.$('input[name=name]').val( );   
+   this.model.save({title:newTitle,name:newName},{
+      success:function(model,response,options){
+        Backbone.history.navigate('',{trigger:true});
+      }
+   });
+}
 });
